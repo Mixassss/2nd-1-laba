@@ -9,10 +9,4 @@
 
 using namespace std;
 
-struct Data {
-  string name;
-  string str;
-  int numLine;
-};
-
 #endif // UTILITY_H 
