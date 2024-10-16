@@ -11,6 +11,7 @@ struct Queue {
     int capacity; // Вместимость очереди
 
     Queue(int cap);
+    Queue();
     ~Queue();
 
     bool isempty();
