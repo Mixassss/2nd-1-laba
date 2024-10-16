@@ -107,6 +107,10 @@ void SinglyLinkedList::clearSList() {
     }
 }
 
+Node* SinglyLinkedList::getHead() const {
+    return head;
+}
+
 DoubleNode::DoubleNode(string value){ 
     data = value;
     next = nullptr;
