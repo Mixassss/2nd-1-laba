@@ -1,6 +1,6 @@
 #include "../include/tree.h"
 
-NodeT::NodeT(string value) {
+NodeT::NodeT(int value) {
     data = value;
     left = nullptr;
     right = nullptr;
@@ -11,7 +11,11 @@ CompleteBinaryTree::CompleteBinaryTree() {
     size = 0;
 }
 
-void CompleteBinaryTree::insert(string value) {
+bool CompleteBinaryTree::isEmpty() const {
+    return size == 0;
+}
+
+void CompleteBinaryTree::insert(int value) {
     NodeT* newNode = new NodeT(value);
     if(root == nullptr) { //Если главная часть равна нулю
         root = newNode; //то присваиваем новую ноду
@@ -21,7 +25,7 @@ void CompleteBinaryTree::insert(string value) {
     size++;
 }
 
-void CompleteBinaryTree::_insert(string value, NodeT* nodeb) {
+void CompleteBinaryTree::_insert(int value, NodeT* nodeb) {
     if(value < nodeb->data) { //Сравниваем значения
         if(nodeb->left == nullptr) {
             nodeb->left = new NodeT(value);
@@ -38,7 +42,7 @@ void CompleteBinaryTree::_insert(string value, NodeT* nodeb) {
     }
 }
 
-bool CompleteBinaryTree::search(NodeT* nodet, string value) {
+bool CompleteBinaryTree::search(NodeT* nodet, int value) {
     if (nodet == nullptr) return false; // Если нет значений
     if (nodet->data == value) return true;
     return search(nodet->left, value) || search(nodet->right, value);
@@ -55,6 +59,18 @@ bool CompleteBinaryTree::isComplete(NodeT* nodet, int index, int totalNodes) {
     // Проверяем рекурсивно для левого и правого поддеревьев
     return isComplete(nodet->left, 2 * index + 1, totalNodes) &&
            isComplete(nodet->right, 2 * (index + 1), totalNodes);
+}
+
+string CompleteBinaryTree::toString(NodeT* node) const {
+    if (node == nullptr) return "";
+    return toString(node->left) + to_string(node->data) + " " + toString(node->right);
+}
+
+void CompleteBinaryTree::printTree(NodeT* node) {
+    if (node == nullptr) return;
+    printTree(node->left);
+    std::cout << node->data << " ";
+    printTree(node->right);
 }
 
 void CompleteBinaryTree::clear(NodeT* nodet) {
