@@ -42,6 +42,7 @@ void Hash_table::insert(const string &key, const string &value) {
             current = current->next;
         }
         current->next = newPair; // Добавляем новый элемент в конец цепочки
+        sizetable++;
     }
 }
 
