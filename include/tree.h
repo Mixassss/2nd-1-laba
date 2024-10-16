@@ -4,11 +4,11 @@
 #include "utility.h"
 
 struct NodeT {
-    string data;
+    int data;
     NodeT* left;
     NodeT* right;
 
-    NodeT(string value);
+    NodeT(int value);
 };
 
 struct CompleteBinaryTree {
@@ -18,11 +18,14 @@ struct CompleteBinaryTree {
     CompleteBinaryTree();
     ~CompleteBinaryTree();
 
-    void insert(string value); //Функция добавления элемента
-    void _insert(string value, NodeT* nodeb);
-    bool search(NodeT* nodet, string value); //функция поиска
+    void insert(int value); //Функция добавления элемента
+    bool isEmpty() const;
+    void _insert(int value, NodeT* nodeb);
+    bool search(NodeT* nodet, int value); //функция поиска
     bool isComplete(NodeT* nodet, int index, int totalNodes); // проверка на complete
     bool isComplete();
+    string toString(NodeT* node) const;
+    void printTree(NodeT* node);
     void clear(NodeT* nodet); // освобождение памяти
 };
 #endif // TREE_H
