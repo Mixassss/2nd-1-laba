@@ -1,64 +1,65 @@
 #include "../include/menu.h"
-#include "../include/file_manager.h"
 
-int main(int argc, char **argv) {
-    // Проверка аргументов командной строки
-    if (argc != 5 || string(argv[1]) != "--file" || string(argv[3]) != "--query") {
-        cerr << "Usage: " << argv[0] << " --file <filename> --query <query>" << endl;
+void printUsage(const char* programName) {
+    cerr << "Использование: " << programName << " --file <filename> --query '<command>'" << endl;
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 5) {
+        printUsage(argv[0]);
         return 1;
     }
 
-    Data data;
-    SinglyLinkedList SList;
-    Array arr; // Создаем экземпляр класса Array
-    Node *tokens = parse(argv[4]);
-    
-    if (!tokens || !tokens->next) {
-        cerr << "Error: Invalid query." << endl;
+    string filename; // Разбор аргументов командной строки
+    string query;
+
+    for (int i = 1; i < argc; i++) {
+        if (string(argv[i]) == "--file") {
+            if (++i < argc) {
+                filename = argv[i];
+            } else {
+                printUsage(argv[0]);
+                return 1;
+            }
+        } else if (string(argv[i]) == "--query") {
+            if (++i < argc) {
+                query = argv[i];
+            } else {
+                printUsage(argv[0]);
+                return 1;
+            }
+        }
+    }
+
+    // Обработка команды
+    if (query.empty()) {
+        cout << "Ошибка: Должна быть указана команда." << endl;
         return 1;
     }
 
-    data.name = tokens->next->data;
-    HNode ht(data.name, ""); // Создаем HNode с именем и пустым значением
-    readValuesFromFile(argv[2], data);
-
-    // Обработка команды в зависимости от первого символа
-    switch (tokens->data[0]) {
+    switch (query[0]) {
         case 'M':
-            aMenu(tokens, arr);
+            aMenu(query, filename);
+            break;
+        case 'L':
+            lMenu(query, filename);
             break;
         case 'Q':
-            qMenu(tokens, data);
+            qMenu(query, filename);
             break;
         case 'S':
-            if (tokens->data[1] == 'L') {
-                lsMenu(tokens, data); 
-            } else {
-                sMenu(tokens, data);
-            }
-            break;
-        case 'D':
-            ldMenu(tokens, data);
+            sMenu(query, filename);
             break;
         case 'H':
-            hMenu(tokens, data);
+            hMenu(query, filename);
             break;
         case 'T':
-            tMenu(tokens, data);
-            break;
-        case 'P':
-            if (tokens->data == "PRINT") {
-                cout << data.str << endl;
-            }
+            tMenu(query, filename);
             break;
         default:
-            cout << "Wrong query" << endl;
-            break;
+            cout << "Ошибка: Неизвестная структура данных." << endl;
+            return 1;
     }
 
-    replaceLineInFile(argv[2], data.numLine, data.str);
-
-    SList.clearSList(); // Освобождение памяти для списка
-    delete tokens; // Освобождение памяти для токенов
     return 0;
 }
