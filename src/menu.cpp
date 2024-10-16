@@ -1,22 +1,10 @@
 #include "../include/menu.h"
 
-void write(const string& path, const string& text) { // Функция записи данных в файл
-  ofstream fout(path);
-  if (!fout.is_open()) {
-    cout << "Не удалось открыть файл для записи" << endl;
-    return;
-  }
-  fout << text;
-}
-
-string Ftext(const string& path, const string& nameStruct) { // Функция сохранения фулл текста файла без нужной структуры
-  ifstream fin(path);
-  if (!fin.is_open()) {
-    cout << "Не удалось открыть файл" << endl;
-    return "";
-  }
-
+string Ftext(string& path, string& nameStruct) { // Функция сохранения фулл текста файла без нужной структуры
   string str, text;
+  ifstream fin;
+  fin.open(path);
+
   while (getline(fin, str)) { // Сохранение фулл текста в переменную
     stringstream ss(str);
     string tokens;
@@ -30,7 +18,17 @@ string Ftext(const string& path, const string& nameStruct) { // Функция �
   return text;
 }
 
-Array aReadFile(const string& path, const string& nameStruct) {
+void write(string& path, string& text) { // Функция записи данных в файл
+  ofstream fout(path);
+  if (!fout.is_open()) {
+    cout << "Не удалось открыть файл для записи" << endl;
+    return;
+  }
+  fout << text;
+  fout.close();
+}
+
+Array aReadFile(string& path, string& nameStruct) {
   Array arr;
   string str;
 
@@ -54,7 +52,7 @@ Array aReadFile(const string& path, const string& nameStruct) {
   return arr;
 }
 
-void MPUSH (const string& data, const string& path, const string& value) {
+void MPUSH (string& data, string& path, string& value) {
   string ftext = Ftext(path, data);
   Array arr = aReadFile(path, data);
 
@@ -74,23 +72,31 @@ void MPUSH (const string& data, const string& path, const string& value) {
     }
 }
 
-void MPUSHIND(const string& name, const string& value, size_t index, const string& path) {
+void MPUSHIND(string& name, string& value, size_t index, string& path) {
+  string ftext = Ftext(path, name);
   Array arr = aReadFile(path, name);
-  if (index > arr.getSize()) {
-    cout << "Индекс выходит за пределы массива!" << endl;
-    return;
-  }
 
   string str;
-  arr.addAtIndex(index, value); // Используем функцию для добавления по индексу
-  str = name + ' ';
-  for (size_t i = 0; i < arr.getSize(); ++i) {
-    str += arr.getIndex(i) + ' ';
-  }  
-  write(path, str);
+    if (arr.getSize() != 0 && index < arr.getSize()) {
+        arr.addAtIndex(index, value);
+        str = name + ' ';
+        for (int i = 0; i < arr.getSize(); ++i) {
+            str += arr.getIndex(i) + ' ';
+        }
+        ftext += str;
+        write(path, ftext);
+    } else if (arr.getSize() == 0 && index == 0){ // создание массива, если его нет
+        str = name + ' ' + value;
+        ftext += str;
+        write(path, ftext);
+  } else {
+        cout << "Ошибка, индекс выходит за размеры массива!" << endl;
+        exit(1);
+    }
 }
 
-void MREMOVE(const string& name, size_t index, const string& path) {
+void MREMOVE(string& name, size_t index, string& path) {
+  string textfull = Ftext(path, name);
   Array arr = aReadFile(path, name);
   if (index >= arr.getSize()) {
     cout << "Индекс выходит за пределы массива!" << endl;
@@ -103,10 +109,12 @@ void MREMOVE(const string& name, size_t index, const string& path) {
   for (size_t i = 0; i < arr.getSize(); ++i) {
     str += arr.getIndex(i) + ' ';
   }
-  write(path, str);
+  textfull += str;
+  write(path, textfull);
 }
 
-void MREPLACE(const string& name, const string& value, size_t index, const string& path) {
+void MREPLACE(string& name, string& value, size_t index, string& path) {
+  string textfull = Ftext(path, name);
   Array arr = aReadFile(path, name);
     
   if (index >= arr.getSize()) {
@@ -116,14 +124,17 @@ void MREPLACE(const string& name, const string& value, size_t index, const strin
   arr.replaceAtIndex(index, value);
     
   string str;
-  str = name + ' ';
+  if (arr.getSize() != 0 && index < arr.getSize()) {
+    arr.replaceAtIndex(index, value);
   for (size_t i = 0; i < arr.getSize(); ++i) {
     str += arr.getIndex(i) + ' ';
   }
-  write(path, str);
+  textfull += str;
+  write(path, textfull);
+  }
 }
 
-void MGET(string& data, size_t& index, const string& path) {
+void MGET(string& data, size_t& index, string& path) {
   Array arr = aReadFile(path, data);
 
   if (arr.getSize() != 0 && index < arr.getSize()) {
@@ -133,7 +144,7 @@ void MGET(string& data, size_t& index, const string& path) {
   }
 }
 
-void MSIZE(const string& name, const string& path) {
+void MSIZE(string& name, string& path) {
   Array arr = aReadFile(path, name);
 
   if (arr.getSize() != 0) {
@@ -143,7 +154,7 @@ void MSIZE(const string& name, const string& path) {
   }
 }
 
-void MPRINT(const string& name, const string& path) {
+void MPRINT(string& name, string& path) {
   Array arr = aReadFile(path, name);
 
   if (arr.getSize() != 0) {
@@ -153,7 +164,7 @@ void MPRINT(const string& name, const string& path) {
   }
 }
 
-void aMenu(const string& command, const string& path) { // Функция обработки команд массива
+void aMenu(string& command, string& path) { // Функция обработки команд массива
   string name, value;
   size_t index;
 
@@ -162,9 +173,8 @@ void aMenu(const string& command, const string& path) { // Функция обр
     stringstream stream(cons);
     stream >> name >> value;
     MPUSH(name, path, value);
-  } else if (command.find("MPUSHIND ") == 0) {
-    string cons = command.substr(9);
-    stringstream stream(cons);
+  } else if (command.substr(0, 7) == "MPUSHIND ") {
+    stringstream stream(command.substr(7));
     stream >> name >> value >> index;
     MPUSHIND(name, value, index, path);
   } else if (command.find("MREMOVE ") == 0) {
@@ -490,17 +500,19 @@ void SPOP(string& name, string& path) {
   Stack data;
   sReadFile(path, name, data); // Исправлено имя функции
 
-  if (!data.isEmpty()) {
+  string str;
+  if (data.size() != 0) {
     data.pop();
-    string str = name + ' ';
-    while (!data.isEmpty()) {
+    str = name + ' ';
+    while(data.size() != 0) {
       str += data.peek() + ' ';
       data.pop();
       }
-    textfull += str;
-    write(path, textfull);
+      textfull += str;
+        write(path, textfull);
     } else {
-      throw out_of_range("Ошибка, нет такого стека или он пуст!");
+        cout << "Ошибка, нет такого стека или он пуст!" << endl;
+        exit(1);
     }
 }
 
@@ -527,11 +539,10 @@ void sMenu(string& command, string& path) { // Функция обработки
     stringstream stream(cons);
     stream >> name >> value;
     SPUSH(name, value, path);
-    } else if (command.find("SPOP ") == 0) {
-      string cons = command.substr(5);
-      stringstream stream(cons);
-      stream >> name;
-      SPOP(name, path);
+    } else if (command.substr(0, 5) == "SPOP ") {
+    stringstream stream(command.substr(5));
+    stream >> name;
+    SPOP(name, path);
     } else if (command.find("SPRINT ") == 0) {
       string cons = command.substr(7);
       stringstream stream(cons);
@@ -649,7 +660,6 @@ void hMenu(string& command, string& path) { // ф-ия обработки ком
 CompleteBinaryTree tReadFile(string& path, string& name) {
   CompleteBinaryTree data;
   string str;
-  ifstream fin;
   ifstream fin(path);
   if (!fin.is_open()) {
     cout << "Не удалось открыть файл для чтения" << endl;
