@@ -1,199 +1,544 @@
 #include "../include/menu.h"
 
-void aMenu(Node *tokens, Data &data) {
-  string query = tokens->data;
+void write(const string& path, const string& text) { // Функция записи данных в файл
+  ofstream fout(path);
+  if (!fout.is_open()) {
+    cout << "Не удалось открыть файл для записи" << endl;
+    return;
+  }
+  fout << text;
+}
+
+string Ftext(const string& path, const string& nameStruct) { // Функция сохранения фулл текста файла без нужной структуры
+  ifstream fin(path);
+  if (!fin.is_open()) {
+    cout << "Не удалось открыть файл" << endl;
+    return "";
+  }
+
+  string str, text;
+  while (getline(fin, str)) { // Сохранение фулл текста в переменную
+    stringstream ss(str);
+    string tokens;
+    getline(ss, tokens, ' ');
+    if (tokens != nameStruct) {
+      text += str + "\n";
+    }
+  }
+
+  fin.close();
+  return text;
+}
+
+Array aReadFile(const string& path, const string& nameStruct) {
   Array arr;
+  string str;
 
-  if (data.str.empty()) return;
-  istringstream stream(data.str);
-  string word;
-  while (stream >> word) {
-    arr.addToEnd(word); // Добавляем слова из строки в массив
+  ifstream fin(path);
+  if (!fin.is_open()) {
+    cout << "Не удалось открыть файл для чтения" << endl;
+    return arr; // Возвращаем пустой массив, если не удалось открыть файл
   }
 
-  if (query == "MPUSH") {
-    arr.addToEnd(tokens->next->next->data);
-  } else if (query == "MINSERT") {
-      size_t index = stoi(tokens->next->next->data);
-      arr.addAtIndex(index, tokens->next->next->next->data);
-  } else if (query == "MGET") {
-      size_t index = stoi(tokens->next->next->data);
-      cout << arr.getIndex(index) << endl;
-  } else if (query == "MREPLACE") {
-      size_t index = stoi(tokens->next->next->data);
-      arr.replaceAtIndex(index, tokens->next->next->next->data);
-  } else if (query == "MDEL") {
-      size_t index = stoi(tokens->next->next->data);
-      arr.removeAtIndex(index);
-  } else if (query == "MLEN") {
-      cout << arr.getSize() << endl;
+  while (getline(fin, str)) {
+    stringstream ss(str);
+    string tokens;
+    getline(ss, tokens, ' ');
+      if (tokens == nameStruct) { // Проверяем на совпадение с нужной структурой
+        while (getline(ss, tokens, ' ')) {
+          arr.addToEnd(tokens); // Добавляем элементы в массив
+        }
+      }
+  }
+  fin.close();
+  return arr;
+}
+
+void MPUSH (const string& data, const string& path, const string& value) {
+  string ftext = Ftext(path, data);
+  Array arr = aReadFile(path, data);
+
+  string str;
+  if (arr.getSize() != 0) {
+    arr.addToEnd(value);
+    str = data + ' ';
+    for (size_t i = 0; i < arr.getSize(); ++i) {
+      str += arr.getIndex(i) + ' ';
+    }
+    ftext += str;
+    write(path, ftext);
   } else {
-      cout << "Invalid request" << endl;
+      str = data + ' ' + value;
+      ftext += str;
+      write(path, ftext);
+    }
+}
+
+void MPUSHIND(const string& name, const string& value, size_t index, const string& path) {
+  Array arr = aReadFile(path, name);
+  if (index > arr.getSize()) {
+    cout << "Индекс выходит за пределы массива!" << endl;
+    return;
   }
-  data.str.clear();
+
+  string str;
+  arr.addAtIndex(index, value); // Используем функцию для добавления по индексу
+  str = name + ' ';
+  for (size_t i = 0; i < arr.getSize(); ++i) {
+    str += arr.getIndex(i) + ' ';
+  }  
+  write(path, str);
+}
+
+void MREMOVE(const string& name, size_t index, const string& path) {
+  Array arr = aReadFile(path, name);
+  if (index >= arr.getSize()) {
+    cout << "Индекс выходит за пределы массива!" << endl;
+    return;
+  } 
+  arr.removeAtIndex(index);
     
-  // Формируем строку для вывода
-  data.str += data.name + " ";
-  for (size_t i = 0; i < arr.getSize(); i++) {
-    data.str += arr.getIndex(i) + " ";
+  string str;
+  str = name + ' ';
+  for (size_t i = 0; i < arr.getSize(); ++i) {
+    str += arr.getIndex(i) + ' ';
   }
+  write(path, str);
 }
 
-void lsMenu(Node* tokens, Data &data) {
-  string query = tokens->data;
-  SinglyLinkedList SList;
-
-  // Парсинг строки из data.str, если она не пустая
-  if (!data.str.empty()) {
-    parse(data.str);
+void MREPLACE(const string& name, const string& value, size_t index, const string& path) {
+  Array arr = aReadFile(path, name);
+    
+  if (index >= arr.getSize()) {
+    cout << "Индекс выходит за пределы массива!" << endl;
+    return;
   }
+  arr.replaceAtIndex(index, value);
+    
+  string str;
+  str = name + ' ';
+  for (size_t i = 0; i < arr.getSize(); ++i) {
+    str += arr.getIndex(i) + ' ';
+  }
+  write(path, str);
+}
 
-  if (query == "LPUSH") {
-    SList.pushFront(tokens->next->next->data);
-  } else if (query == "LADD") {
-      SList.pushBack(tokens->next->next->data);
-  } else if (query == "LREM") {
-      SList.popBack();
-  } else if (query == "LDEL") {
-      SList.popFront();
-  } else if (query == "LREMOVE") {
-      string value = tokens->next->next->data;
-      SList.removeAt(value);
+void MGET(string& data, size_t& index, const string& path) {
+  Array arr = aReadFile(path, data);
+
+  if (arr.getSize() != 0 && index < arr.getSize()) {
+    cout << arr.getIndex(index) << endl; // Используем метод get для получения значения
   } else {
-      cout << "Invalid request" << endl;
+      throw out_of_range("Ошибка: Нет такого массива или индекс выходит за его размеры ");
   }
-
-  // Формируем строку из элементов списка
-  Node* curNode = SList.head; // Инициализация указателя на голову списка
-  data.str.clear(); // Очищаем строку перед формированием новой
-
-  if (curNode) {
-    data.str += data.name + " ";
-    while (curNode) {
-      data.str += curNode->data + " ";
-      curNode = curNode->next;
-    }
-  }
-
-  // Освобождаем память, занятую списком
-  SList.clearSList();
 }
 
-Node* parse(const string &input) {
-    Node* tokens = nullptr;
-    SinglyLinkedList SList;
-    istringstream iss(input);
-    string token;
+void MSIZE(const string& name, const string& path) {
+  Array arr = aReadFile(path, name);
 
-    while (iss >> token) {
-        SList.pushBack(token);
-    }
-
-    return tokens;
+  if (arr.getSize() != 0) {
+    cout << arr.getSize() << endl; // Выводим размер массива
+  } else {
+    throw out_of_range("Ошибка. Нет такого массива или он пуст ");
+  }
 }
 
-void ldMenu(Node* tokens, Data &data) {
-  string query = tokens->data;
-  DoublyLinkedList DList;
-  
-  // Парсинг строки из data.str, если она не пустая
-    if (!data.str.empty()) {
-        parse(data.str);
-    }
+void MPRINT(const string& name, const string& path) {
+  Array arr = aReadFile(path, name);
 
-    if (query == "LPUSH") {
-        DList.pushFront(tokens->next->next->data);
-    } else if (query == "LADD") {
-        DList.pushBack(tokens->next->next->data);
-    } else if (query == "LREM") {
-        DList.popBack();
-    } else if (query == "LDEL") {
-        DList.popFront();
-    } else if (query == "LREMOVE") {
-        string value = tokens->next->next->data;
-        DList.removeAt(value);
+  if (arr.getSize() != 0) {
+    arr.ShowArray(); // Печатаем массив
+  } else {
+  throw out_of_range("Ошибка. Нет такого массива или он пуст ");
+  }
+}
+
+void aMenu(const string& command, const string& path) { // Функция обработки команд массива
+  string name, value;
+  size_t index;
+
+  if (command.find("MPUSH ") == 0) {
+    string cons = command.substr(6); 
+    stringstream stream(cons);
+    stream >> name >> value;
+    MPUSH(name, path, value);
+  } else if (command.find("MPUSHIND ") == 0) {
+    string cons = command.substr(9);
+    stringstream stream(cons);
+    stream >> name >> value >> index;
+    MPUSHIND(name, value, index, path);
+  } else if (command.find("MREMOVE ") == 0) {
+    string cons = command.substr(8);
+    stringstream stream(cons);
+    stream >> name >> index;
+    MREMOVE(name, index, path);
+  } else if (command.find("MREPLACE ") == 0) {
+    string cons = command.substr(9);
+    stringstream stream(cons);
+    stream >> name >> value >> index;
+    MREPLACE(name, value, index, path);
+  } else if (command.find("MGET ") == 0) {
+    string cons = command.substr(5);
+    stringstream stream(cons);
+    stream >> name >> index;
+    MGET(name, index, path);
+  } else if (command.find("MSIZE ") == 0) {
+    string cons = command.substr(6);
+    stringstream stream(cons);
+    stream >> name;
+    MSIZE(name, path);
+  } else if (command.find("MPRINT ") == 0) {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name;
+    MPRINT(name, path);
+  } else {
+    throw out_of_range("Ошибка. Нет такой команды ");
+  }
+}
+
+SinglyLinkedList slReadFile(const string& path, const string& nameStruct) {
+  SinglyLinkedList data;
+  string str;
+
+  ifstream fin(path);
+  if (!fin.is_open()) {
+    cout << "Не удалось открыть файл для чтения" << endl;
+    return data; // Возвращаем пустой массив, если не удалось открыть файл
+  }
+
+  while (getline(fin, str)) {
+    stringstream ss(str);
+    string tokens;
+    getline(ss, tokens, ' ');
+    if (tokens == nameStruct) { // Проверяем на совпадение с нужной структурой
+      while (getline(ss, tokens, ' ')) {
+        data.pushBack(tokens); // Добавляем элементы в массив
+      }
+    }
+  }
+  fin.close();
+  return data;
+}
+
+void LPUSH(const string& name, const string& value, const string& path, const string& check) {
+  string textfull = Ftext(path, name);
+  SinglyLinkedList data = slReadFile(path, name);
+
+  if (!data.isEmpty()) {
+    (check == "back") ? data.pushBack(value) : data.pushFront(value);
+    string str = name + ' ';
+    Node* current = data.getHead(); // Значение текущего элемента
+    while (current) {
+      str += current->data + ' ';
+      current = current->next;
+      }
+    textfull += str;
+    write(path, textfull);
+  } else {
+      string str = name + ' ' + value;
+      write(path, str); // перезаписываем новый элемент
+  }
+}
+
+void LPOP(const string& name, const string& path, const string& check) {
+  SinglyLinkedList data = slReadFile(path, name);
+  string textfull = Ftext(path, name);
+
+  if (!data.isEmpty()) {
+    (check == "back") ? data.popBack() : data.popFront();
+    string str = name + ' ';
+    Node* current = data.getHead(); // Значение текущего элемента
+    while (current) {
+      str += current->data + ' ';
+      current = current->next;
+    }
+    textfull += str;
+    write(path, textfull);
     } else {
-        cout << "Invalid request" << endl;
-    }
-
-    // Формируем строку из элементов списка
-    DoubleNode* curNode = DList.head; // Инициализация указателя на голову списка
-    data.str.clear(); // Очищаем строку перед формированием новой
-
-    if (curNode) {
-      data.str += data.name + " ";
-      while (curNode) {
-        data.str += curNode->data + " ";
-        curNode = curNode->next;
-    }
-  }
-}
-
-void qMenu(Node* tokens, Data &data) {
-  string query = tokens->data;
-  Queue node(10); //Создаем очередь с изначальной вместимостью 10
-
-  if(!data.str.empty()) {
-    istringstream stream(data.str);
-    string word;
-    while (stream >> word) {
-      node.push(word); // Добавляем слова из строки в очередь
-    }
-  }
-  
-  if (query == "QPUSH") {
-    node.push(tokens->next->next->data);
-    } else if (query == "QPOP") {
-      if (!node.isempty()){
-        node.pop();
-        } else {
-          cout << "The queue is empty" << endl;
-          }
-          } else {
-            cout << "Invalid request" << endl;
-  }
-  
-  data.str.clear();
-    
-    if (!node.isempty()) {
-        data.str += data.name + " ";
-        while (!node.isempty()) {
-            data.str += node.peek() + " "; // Получаем элемент в начале очереди
-            node.pop(); // Удаляем его из очереди
-        }
+      throw out_of_range("Ошибка: нет такого списка или он пуст");
     }
 }
 
-void sMenu(Node* tokens, Data& data) {
-  string query = tokens->data;
+void LREMOVE(const string& name, const string& value, const string& path) {
+  string textfull = Ftext(path, name);
+  SinglyLinkedList data = slReadFile(path, name);
 
-  Stack stack(10); // Создаем стек с начальной вместимостью 10
+  if (!data.isEmpty()) {
+    data.removeAt(value); // Удаляем элемент
+    string str = name + ' ';
+    Node* current = data.getHead(); // Значение текущего элемента
+    while (current) {
+      str += current->data + ' ';
+      current = current->next;
+      }
+    textfull += str;
+    write(path, textfull);
+    } else {
+      throw out_of_range("Ошибка, нет такого списка или он пуст!");
+  }
+}
 
-    if (!data.str.empty()) {
-        istringstream stream(data.str);
-        string word;
-        while (stream >> word) {
-          stack.push(word); // Добавляем слова из строки в стек
-        }
+void LGET(const string& name, const string& value, const string& filename) {
+  SinglyLinkedList data = slReadFile(filename, name);
+
+  if (!data.isEmpty()) {
+    int index = data.find(value); // Используем метод find
+    if (index == -1) {
+      throw out_of_range("Нет такого значения в списке");
+    } else {
+      cout << "Индекс значения: " << index << endl;
     }
-    if(query == "SPUSH") {
-      stack.push(tokens->next->next->data);
-    } else if (query == "QPOP") {
-    if (!stack.isEmpty()){
-      stack.pop();
+    } else {
+      throw out_of_range("Ошибка: нет такого списка");
     }
+}
+
+void LPRINT(const string& name, const string& filename) {
+  SinglyLinkedList data = slReadFile(filename, name);
+
+  if (!data.isEmpty()) {
+    data.print();
   } else {
-    cout << "Wrong query" << endl;
+      throw out_of_range("Ошибка, нет такого списка или он пуст");
   }
-  
-  data.str.clear();
-    
-    if (!stack.isEmpty()) {
-        data.str += data.name + " ";
-        while (!stack.isEmpty()) {
-            data.str += stack.peek() + " "; // Получаем элемент в начале стека
-            stack.pop(); // Удаляем его из стека
+}
+
+void lMenu(const string& command, const string& path) {
+  string name, value;
+
+  if (command.find("LPUSHB ") == 0) {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name >> value;
+    LPUSH(name, value, path, "back");
+  } else if (command.find("LPUSHF ") == 0) {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name >> value;
+    LPUSH(name, value, path, "front");
+  } else if (command.find("LPOPB ")) {
+    string cons = command.substr(6);
+    stringstream stream(cons);
+    stream >> name;
+    LPOP(name, path, "back");
+  } else if (command.find("LPOPF ")) {
+    string cons = command.substr(6);
+    stringstream stream(cons);
+    stream >> name;
+    LPOP(name, path, "front");
+  } else if (command.find("LREMOVE ")) {
+    string cons = command.substr(8);
+    stringstream stream(cons);
+    stream >> name >> value;
+    LREMOVE(name, value, path);
+  } else if (command.find("LGET ")) {
+    string cons = command.substr(5);
+    stringstream stream(cons);
+    stream >> name >> value;
+    LGET(name, value, path);
+  } else if (command.find("LPRINT ")) {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name;
+    LPRINT(name, path);
+  } else {
+    throw out_of_range("Ошибка: нет такой команды");
+  }
+}
+
+void qReadFile(const string& path, const string& nameStruct, Queue& data) {
+    string str;
+    ifstream fin(path);
+    if (!fin.is_open()) {
+        throw out_of_range("Не удалось открыть файл для чтения");
+        return; // Завершаем выполнение функции
+    }
+
+    while (getline(fin, str)) {
+        stringstream ss(str);
+        string tokens;
+        getline(ss, tokens, ' ');
+        if (tokens == nameStruct) { // Проверяем на совпадение с нужной структурой
+            while (getline(ss, tokens, ' ')) {
+                data.push(tokens); // Добавляем элементы в очередь
+            }
         }
+    }
+    fin.close();
+}
+
+void QPUSH(const string& name, const string& value, const string& path) {
+  string textfull = Ftext(path, name);
+  Queue data;
+  qReadFile(path, name, data);
+    
+  data.push(value); // Добавляем новое значение в очередь
+  string str = name + ' '; // Создаем строку для записи
+  Queue temp = data; // Копируем текущую очередь для записи
+  while (!temp.isempty()) {
+    str += temp.peek() + ' ';
+    temp.pop();
+  }
+  textfull += str;
+  write(path, textfull); // Записываем строку в файл
+}
+
+
+void QPOP(const string& name, const string& path) {
+  string textfull = Ftext(path, name);
+  Queue data;
+  qReadFile(path, name, data);
+
+    if (data.isempty()) {
+        throw out_of_range("Ошибка: нет такой очереди или она пуста");
+    }
+
+    data.pop(); // Удаляем элемент из очереди
+
+    // Создаем строку для записи
+    string str = name + ' ';
+    Queue temp = data; // Копируем текущую очередь для записи
+    while (!temp.isempty()) {
+        str += temp.peek() + ' ';
+        temp.pop();
+    }
+    textfull += str;
+    write(path, textfull); // Записываем строку в файл
+}
+
+void QPRINT(const string& name, const string& path) {
+    Queue data;
+    qReadFile(path, name, data);
+    
+    if (data.isempty()) {
+        throw out_of_range("Нет такой очереди или она пуста");
+    }
+
+    while (!data.isempty()) {
+        cout << data.peek() << " ";
+        data.pop();
+    }
+    cout << endl;
+}
+
+void qMenu(const string& command, const string& path) {
+    string name, value;
+
+    if (command.find("QPUSH ") == 0) {
+      string cons = command.substr(6);
+      stringstream stream(cons);
+      stream >> name >> value;
+      QPUSH(name, value, path);
+    } else if (command.find("QPOP ") == 0) {
+        string cons = command.substr(5);
+      stringstream stream(cons);
+      stream >> name;
+      QPOP(name, path);
+    } else if (command.find("QPRINT ") == 0) {
+      string cons = command.substr(7);
+      stringstream stream(cons);
+      stream >> name;
+      QPRINT(name, path);
+    } else {
+      throw out_of_range("Ошибка, нет такой команды");
+    }
+}
+
+void sReadFile(const string& path, const string& nameStruct, Stack& data) {
+  Stack doubly(30);
+  string str;
+  ifstream fin(path);
+  if (!fin.is_open()) {
+    cout << "Не удалось открыть файл для чтения" << endl;
+  }
+
+  while (getline(fin, str)) {
+    stringstream ss(str);
+    string tokens;
+    getline(ss, tokens, ' ');
+    if (tokens == nameStruct) { // Проверяем на совпадение с нужной структурой
+    while (getline(ss, tokens, ' ')) {
+      doubly.push(tokens);
+      }
+    while (getline(ss, tokens, ' ')) {
+      data.push(data.peek());
+      doubly.pop(); // Добавляем элементы в список 
+      }
+    }
+  }
+  fin.close();
+}
+
+void SPUSH(string& name, string& value, string& path) {
+  string textfull = Ftext(path, name);
+  Stack data; // Создаем стек
+  sReadFile(path, name, data); // Передаем стек в функцию
+
+  data.push(value);
+  string str = name + ' ';
+  while (!data.isEmpty()) {
+    str += data.peek() + ' ';
+    data.pop();
+  }
+  textfull += str;
+  write(path, textfull);
+}
+
+void SPOP(string& name, string& path) {
+    string textfull = Ftext(path, name);
+    Stack data;
+    sReadFile(path, name, data); // Исправлено имя функции
+
+    if (!data.isEmpty()) {
+        data.pop();
+        string str = name + ' ';
+        while (!data.isEmpty()) {
+            str += data.peek() + ' ';
+            data.pop();
+        }
+        textfull += str;
+        write(path, textfull);
+    } else {
+        throw out_of_range("Ошибка, нет такого стека или он пуст!");
+    }
+}
+
+void SPRINT(string& name, string& path) {
+    Stack data;
+    sReadFile(path, name, data); // Исправлено имя функции
+
+    if (!data.isEmpty()) {
+        while (!data.isEmpty()) {
+            cout << data.peek() << " ";
+            data.pop();
+        }
+        cout << endl;
+    } else {
+        throw out_of_range("Нет такого стека или он пуст!");
+    } 
+}
+
+void sMenu(string& command, string& path) { // Функция обработки команд стека
+    string name, value;
+
+    if (command.find("SPUSH ") == 0) {
+      string cons = command.substr(6);
+      stringstream stream(cons);
+      stream >> name >> value;
+      SPUSH(name, value, path);
+    } else if (command.find("SPOP ") == 0) {
+        string cons = command.substr(5);
+      stringstream stream(cons);
+        stream >> name;
+        SPOP(name, path);
+    } else if (command.find("SPRINT ") == 0) {
+        string cons = command.substr(7);
+      stringstream stream(cons);
+        stream >> name;
+        SPRINT(name, path);
+    } else {
+        throw out_of_range("Ошибка, нет такой команды!");
     }
 }
 
@@ -270,20 +615,4 @@ void tMenu(Node *tokens, Data &data) {
     } else {
         cout << "Wrong query" << endl;
     }
-}
-
-void addToData(Data &data, NodeT *node) {
-    if (node) {
-        addToData(data, node->left);
-        data.str += node->data + " "; // Используем node->data вместо node->key
-        addToData(data, node->right);
-    }
-}
-
-size_t stringToSize(const string &str) {
-  istringstream stream(str);
-  size_t res;
-  stream >> res;
-
-  return res;
 }
