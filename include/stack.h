@@ -10,6 +10,7 @@ struct Stack{
     int capacity; //Вместимост стека
 
     Stack(size_t size);
+    Stack();
     ~Stack();
 
     void push(string value); //Функция добавления
