@@ -16,6 +16,7 @@ struct HNode {
 
 struct Hash_table {
     HNode** table;
+    int sizetable = 0;
 
     Hash_table(); //Инициализация хэш таблицы
     ~Hash_table(); //Деконструктор
