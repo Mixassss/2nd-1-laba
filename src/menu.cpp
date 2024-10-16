@@ -486,133 +486,259 @@ void SPUSH(string& name, string& value, string& path) {
 }
 
 void SPOP(string& name, string& path) {
-    string textfull = Ftext(path, name);
-    Stack data;
-    sReadFile(path, name, data); // Исправлено имя функции
+  string textfull = Ftext(path, name);
+  Stack data;
+  sReadFile(path, name, data); // Исправлено имя функции
 
-    if (!data.isEmpty()) {
-        data.pop();
-        string str = name + ' ';
-        while (!data.isEmpty()) {
-            str += data.peek() + ' ';
-            data.pop();
-        }
-        textfull += str;
-        write(path, textfull);
+  if (!data.isEmpty()) {
+    data.pop();
+    string str = name + ' ';
+    while (!data.isEmpty()) {
+      str += data.peek() + ' ';
+      data.pop();
+      }
+    textfull += str;
+    write(path, textfull);
     } else {
-        throw out_of_range("Ошибка, нет такого стека или он пуст!");
+      throw out_of_range("Ошибка, нет такого стека или он пуст!");
     }
 }
 
 void SPRINT(string& name, string& path) {
-    Stack data;
-    sReadFile(path, name, data); // Исправлено имя функции
+  Stack data;
+  sReadFile(path, name, data); // Исправлено имя функции
 
-    if (!data.isEmpty()) {
-        while (!data.isEmpty()) {
-            cout << data.peek() << " ";
-            data.pop();
-        }
-        cout << endl;
+  if (!data.isEmpty()) {
+    while (!data.isEmpty()) {
+      cout << data.peek() << " ";
+      data.pop();
+      }
+    cout << endl;
     } else {
-        throw out_of_range("Нет такого стека или он пуст!");
+      throw out_of_range("Нет такого стека или он пуст!");
     } 
 }
 
 void sMenu(string& command, string& path) { // Функция обработки команд стека
-    string name, value;
+  string name, value;
 
-    if (command.find("SPUSH ") == 0) {
-      string cons = command.substr(6);
+  if (command.find("SPUSH ") == 0) {
+    string cons = command.substr(6);
+    stringstream stream(cons);
+    stream >> name >> value;
+    SPUSH(name, value, path);
+    } else if (command.find("SPOP ") == 0) {
+      string cons = command.substr(5);
+      stringstream stream(cons);
+      stream >> name;
+      SPOP(name, path);
+    } else if (command.find("SPRINT ") == 0) {
+      string cons = command.substr(7);
+      stringstream stream(cons);
+      stream >> name;
+      SPRINT(name, path);
+    } else {
+      throw out_of_range("Ошибка, нет такой команды!");
+    }
+}
+
+Hash_table hReadFile(string& path, string& name) { // ф-ия чтения Хеш-таблицы из файла
+    Hash_table nums;
+    string str;
+    ifstream fin;
+    fin.open(path);
+    while (getline(fin, str)) {
+        stringstream ss(str);
+        string token;
+        getline(ss, token, ' ');
+        if (token == name) {
+            while (getline(ss, token, ' ')) {
+                int position = token.find_first_of(':');
+                token.replace(position, 1, " ");
+                stringstream iss(token);
+                string key, value;
+                iss >> key >> value;
+                nums.insert(key, value);
+            }
+        }
+    }
+    fin.close();
+    return nums;
+}
+
+string printHashTable(const Hash_table& ht, string& name) { // Функция для перебора всех элементов хеш-таблицы
+    string str = name + ' ';
+    for (int i = 0; i < SIZE; ++i) {
+        HNode* current = ht.table[i];
+        while (current) {
+            str += current->key + ':' + current->value + ' ';
+            current = current->next;
+        }
+    }
+    return str;
+}
+void HPUSH(string& name, string& key, string& value, string& path) {
+    string textfull = Ftext(path, name);
+    Hash_table nums = hReadFile(path, name);
+    
+    string str;
+    if (nums.sizetable != 0) {
+        nums.insert(key, value);
+        str = printHashTable(nums, name);
+        textfull += str;
+        write(path, textfull);
+    } else {
+        str = name + ' ' + key + ':' + value;
+        textfull += str;
+        write(path, textfull);
+    }
+}
+void HPOP(string& name, string& key, string& path) {
+  string textfull = Ftext(path, name);
+  Hash_table nums = hReadFile(path, name);
+
+  string str;
+  if (nums.sizetable != 0) {
+    if (nums.remove(key)) {
+      str = printHashTable(nums, name);
+      textfull += str;
+      write(path, textfull);
+      } else {
+        throw out_of_range("Ошибка, нет такого ключа");
+      }
+    } else {
+      throw out_of_range("Ошибка, нет такой таблицы или она пуста");
+    }
+}
+void HGET(string& name, string& key, string& path) {
+  Hash_table data = hReadFile(path, name);
+
+  string str;
+  if (data.sizetable != 0) {
+    string value;
+    if (!data.get(key, value)) {
+      throw out_of_range("Ошибка: нет такого ключа");
+    }
+    } else {
+      throw out_of_range("Ошибка: нет такой таблицы или она пуста");
+    }
+}
+void hMenu(string& command, string& path) { // ф-ия обработки команд Хеш-таблицы
+  string name, key, value;
+
+  if (command.find("HPUSH ") == 0) {
+    string cons = command.substr(6);
+    stringstream stream(cons);
+    stream >> name >> key >> value;
+    HPUSH(name, key, value, path);
+    } else if (command.find("HPOP ") == 0) {
+    string cons = command.substr(5);
+    stringstream stream(cons);
+    stream >> name >> key;
+    HPOP(name, key, path);
+    } else if (command.find("HGET ") == 0) {
+    string cons = command.substr(5);
+    stringstream stream(cons);
+    stream >> name >> key;
+    HGET(name, key, path);
+    } else {
+    throw out_of_range("Ошибка, нет такой команды"); 
+    }
+}
+
+CompleteBinaryTree tReadFile(string& path, string& name) {
+  CompleteBinaryTree data;
+  string str;
+  ifstream fin;
+  ifstream fin(path);
+  if (!fin.is_open()) {
+    cout << "Не удалось открыть файл для чтения" << endl;
+  }
+
+  while (getline(fin, str)) {
+    stringstream ss(str);
+    string token;
+    getline(ss, token, ' ');
+    if (token == name) {
+      while (getline(ss, token, ' ')) {
+        data.insert(stoi(token));
+        }
+      }
+    }
+  fin.close();
+  return data;
+}
+
+void TPush(string& name, int value, string& path) {
+  string textfull = Ftext(path, name);
+    CompleteBinaryTree data = tReadFile(path, name);
+    string str;
+  
+  if (data.size != 0) {
+    data.insert(value);
+    str = name + ' ' + data.toString(data.root); 
+    textfull += str;
+    write(path, textfull); 
+    } else {
+        str = name + ' ' + to_string(value);
+        textfull += str;
+        write(path, textfull);
+  }
+}
+
+void TSearch(string& name, int value, string& path) {
+    CompleteBinaryTree nums = tReadFile(path, name);
+    if (!nums.isEmpty()) {
+        cout << (nums.search(nums.root, value) ? "True" : "False") << endl;
+    } else {
+        throw out_of_range("Ошибка, нет такого дерева или оно пусто");
+    }
+}
+
+void TCheck(string& name, string& filename) {
+    CompleteBinaryTree nums = tReadFile(filename, name);
+    if (!nums.isEmpty()) {
+        cout << (nums.isComplete(nums.root, 0, nums.size) ? "True" : "False") << endl;
+    } else {
+        throw out_of_range("Ошибка, нет такого дерева или оно пусто");
+    }
+}
+
+void TPrint(string& name, string& filename) {
+  CompleteBinaryTree nums = tReadFile(filename, name);
+  if (!nums.isEmpty()) {
+    nums.printTree(nums.root);
+    cout << endl; // Добавляем перевод строки для удобства
+    } else {
+      throw out_of_range("Ошибка, нет такого дерева или оно пусто");
+    }
+}
+
+void tMenu(string& command, string& path) {
+  string name;
+  int value;
+
+  if (command.find("TPUSH ") == 0) {
+    string cons = command.substr(6);
+    stringstream stream(cons);
+    stream >> name >> value;
+    TPush(name, value, path);
+    } else if (command.find("TSEARCH ") == 0) {
+      string cons = command.substr(8);
       stringstream stream(cons);
       stream >> name >> value;
-      SPUSH(name, value, path);
-    } else if (command.find("SPOP ") == 0) {
-        string cons = command.substr(5);
+      TSearch(name, value, path);
+    } else if (command.find("TCHECK ") == 0) {
+      string cons = command.substr(7);
       stringstream stream(cons);
-        stream >> name;
-        SPOP(name, path);
-    } else if (command.find("SPRINT ") == 0) {
-        string cons = command.substr(7);
+      stream >> name;
+      TCheck(name, path);
+    } else if (command.find("TPRINT ") == 0) {
+      string cons = command.substr(7);
       stringstream stream(cons);
-        stream >> name;
-        SPRINT(name, path);
+      stream >> name;
+      TPrint(name, path);
     } else {
-        throw out_of_range("Ошибка, нет такой команды!");
-    }
-}
-
-void hMenu(Node *tokens, Data &data) {
-  string query = tokens->data;
-  Hash_table node; // Создаем экземпляр хэш-таблицы
-
-  if (query == "HADD") { // Обработка различных запросов
-    // Добавляем слова из data.str в хэш-таблицу
-    if (!data.str.empty()) {
-      istringstream stream(data.str);
-      string key, value;
-      while (stream >> key >> value) { // Предполагаем, что ключ и значение идут парами
-        node.insert(key, value); // Вставляем пару ключ-значение в хэш-таблицу
-      }
-    }
-  } else if (query == "HGET") {
-      string result;
-      if (node.get(tokens->next->data, result)) { // Получаем элемент из хэш-таблицы
-        cout << result << endl; // Если элемент найден, выводим его значение
-      } else {
-        cout << false << endl; // Если элемент не найден
-      }
-    } else if (query == "HDEL") {
-        if (node.remove(tokens->next->data)) { // Удаляем элемент из хэш-таблицы
-          cout << "Deleted" << endl;
-      } else {
-          cout << "Key not found" << endl;
-      }
-    } else {
-        cout << "Wrong query" << endl; // Обработка неправильного запроса
-  }
-
-  data.str.clear(); // Очищаем строку для следующего использования
-
-  if (tokens->next) { // Проверяем, есть ли следующий элемент
-    string key = tokens->next->data;
-    string value;
-    if (node.get(key, value)) { // Используем правильный ключ для получения
-      data.str = key + " " + value; // Сохраняем результат в data.str
-    } else {
-        data.str = ""; // Если ничего не найдено, очищаем строку
-    }
-  }
-}
-
-void tMenu(Node *tokens, Data &data) {
-  string query = tokens->data;
-  CompleteBinaryTree tree; // Используем экземпляр дерева
-    string name = tokens->next->data;
-
-    if (!data.str.empty()) {
-        istringstream stream(data.str);
-        string word;
-        while (stream >> word) {
-            tree.insert(word); // Вставляем слова в дерево
-        }
-    }
-
-    if (query == "TPUSH") {
-        tree.insert(tokens->next->next->data); // Вставка нового элемента
-    } else if (query == "TGET") {
-        if (tree.search(tree.root, tokens->next->next->data)) { // Поиск элемента
-            cout << true << endl;
-        } else {
-            cout << false << endl;
-        }
-    } else if (query == "TCHECK") { // Проверка на полное бинарное дерево
-        if (tree.isComplete()) {
-            cout << "The tree is complete." << endl;
-        } else {
-            cout << "The tree is not complete." << endl;
-        }
-    } else {
-        cout << "Wrong query" << endl;
+        throw out_of_range("Ошибка: нет такой команды"); 
     }
 }
