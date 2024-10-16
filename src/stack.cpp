@@ -4,6 +4,10 @@ Stack::Stack(size_t size) : capacity(size), head(-1) {
     data = new string[capacity];
 }
 
+Stack::Stack() : capacity(10), head(-1) { // Например, установить начальную емкость 10
+    data = new string[capacity];
+}
+
 Stack::~Stack() {
     delete[] data;
 }
