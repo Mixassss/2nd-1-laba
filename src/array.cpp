@@ -3,11 +3,9 @@
 Array::Array() : size(0), razmer(0) {
     arr = new string[razmer];
 }
-
 Array::~Array() {
     delete[] arr; //Освобождение места
 }
-
 void Array::ShowArray() const {
     for (size_t i = 0; i < size; ++i) {
         cout << arr[i] << " ";
@@ -17,28 +15,29 @@ void Array::ShowArray() const {
 
 void Array::addToEnd(string value) {
     string *newArr = new string[size + 1]; //Добавление нового массива, который увеличен на 1
-    for (size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i)
+    {
         newArr[i] = arr[i];
     }
-    newArr[size] = value;
     delete[] arr;
     arr = newArr;
-    size++;//Увеличение длины массива   
+    arr[size++] = value;//Увеличение длины массива   
 }
 
 void Array::addAtIndex(size_t index, string value) {
-    if (index > size) {
-        throw out_of_range("Index out of range");
+    if (index > size) return;
+    string *newArr = new string[size + 1];
+    for (size_t i = 0; i < index; ++i) {
+        newArr[i] = arr[i];
     }
-    if (size == razmer) {
-        resize(); // если заполнен - увеличить
+    newArr[index] = value;
+    for (size_t i = index; i < size; ++i) {
+        newArr[i + 1] = arr[i];
     }
-    for (size_t i = size; i > index; --i) {
-        arr[i] = arr[i - 1]; // Сдвигаем элементы вправо
+    delete[] arr;
+    arr = newArr;
+    size++;
     }
-    arr[index] = value;
-    ++size;
-}
 
 string Array::getIndex(size_t index) {
     if (index >= size) {
@@ -67,15 +66,5 @@ void Array::replaceAtIndex(size_t index, string value) {
 }
 
 size_t Array::getSize() const {
-    return size; // Возвращаем текущее количество элементов
-}
-
-void Array::resize() {
-    razmer *= 2; // Увеличиваем вместимость в 2 раза
-    string* newArr = new string[razmer];
-    for (size_t i = 0; i < size; ++i) {
-        newArr[i] = arr[i];
-    }
-    delete[] arr;
-    arr = newArr;
+    return size;
 }
