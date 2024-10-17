@@ -20,4 +20,6 @@ struct Stack{
     size_t size();
 };
 
+#include "../src/stack.cpp"
+
 #endif // STACK_H
