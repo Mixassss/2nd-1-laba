@@ -1,12 +1,9 @@
-#ifndef utility_h
-#define utility_h
+#pragma once
 
 #include <iostream>
-#include<iomanip>
+#include <iomanip>
 #include <sstream>
 #include <fstream>
 #include <string>
 
 using namespace std;
-
-#endif // UTILITY_H 
