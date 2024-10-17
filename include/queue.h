@@ -20,4 +20,6 @@ struct Queue {
     string peek(); // функция вывода элемента в начале очереди
 };
 
+#include "../src/queue.cpp"
+
 #endif //  QUEUE_H
