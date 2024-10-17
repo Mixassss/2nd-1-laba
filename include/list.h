@@ -58,5 +58,6 @@ struct DoublyLinkedList {
     
 };
 
+#include "../src/list.cpp"
 
 #endif // LIST_H
