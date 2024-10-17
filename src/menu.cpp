@@ -1,4 +1,10 @@
 #include "../include/menu.h"
+#include "../include/arr.h"
+#include "../include/list.h"
+#include "../include/queue.h"
+#include "../include/stack.h"
+#include "../include/ht.h"
+#include "../include/tree.h"
 
 string Ftext(string& path, string& nameStruct) { // Функция сохранения фулл текста файла без нужной структуры
   string str, text;
