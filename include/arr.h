@@ -20,6 +20,4 @@ struct Array {
     size_t getSize() const;
 };
 
-#include "../src/array.cpp"
-
 #endif // ARR_H
