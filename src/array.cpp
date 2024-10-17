@@ -1,6 +1,6 @@
 #include "../include/arr.h"
 
-Array::Array() : size(0), razmer(0) {
+Array::Array() : size(0), razmer(10) {
     arr = new string[razmer];
 }
 Array::~Array() {
