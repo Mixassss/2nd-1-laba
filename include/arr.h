@@ -1,5 +1,4 @@
-#ifndef _arr_h
-#define _arr_h
+#pragma once
 
 #include "utility.h"
 
@@ -20,4 +19,4 @@ struct Array {
     size_t getSize() const;
 };
 
-#endif // ARR_H
+#include "../src/array.cpp"
