@@ -28,4 +28,7 @@ struct CompleteBinaryTree {
     void printTree(NodeT* node);
     void clear(NodeT* nodet); // освобождение памяти
 };
+
+#include "../src/complete_binary_tree.cpp"
+
 #endif // TREE_H
