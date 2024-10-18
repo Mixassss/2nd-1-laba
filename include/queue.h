@@ -18,6 +18,7 @@ struct Queue {
     void push(string value); //Функция добаления элемента
     string pop(); // функция удаления элемента с начала очереди и его возврат
     string peek(); // функция вывода элемента в начале очереди
+    int Size();
 };
 
 #include "../src/queue.cpp"
