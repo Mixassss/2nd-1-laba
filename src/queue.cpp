@@ -41,3 +41,7 @@ string Queue::peek() {
     }
     return data[front];
 }
+
+int Queue::Size() {
+    return size;
+}
