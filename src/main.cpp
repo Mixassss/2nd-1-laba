@@ -133,6 +133,7 @@ void MREPLACE(string& name, string& value, size_t index, string& path) {
   arr.replaceAtIndex(index, value);
     
   string str;
+  str = name + ' ';
   if (arr.getSize() != 0 && index < arr.getSize()) {
     arr.replaceAtIndex(index, value);
   for (size_t i = 0; i < arr.getSize(); ++i) {
@@ -177,7 +178,7 @@ void aMenu(string& command, string& path) { // Функция обработки
   string name, value;
   size_t index;
 
-  if (command.find("MPUSH ") == 0) {
+  if (command.substr(0, 6) == "MPUSH ") {
     string cons = command.substr(6); 
     stringstream stream(cons);
     stream >> name >> value;
@@ -186,27 +187,27 @@ void aMenu(string& command, string& path) { // Функция обработки
     stringstream stream(command.substr(9));
     stream >> name >> value >> index;
     MPUSHIND(name, value, index, path);
-  } else if (command.find("MREMOVE ") == 0) {
+  } else if (command.substr(0, 8) == "MREMOVE ") {
     string cons = command.substr(8);
     stringstream stream(cons);
     stream >> name >> index;
     MREMOVE(name, index, path);
-  } else if (command.find("MREPLACE ") == 0) {
+  } else if (command.substr(0, 9) == "MREPLACE ") {
     string cons = command.substr(9);
     stringstream stream(cons);
     stream >> name >> value >> index;
     MREPLACE(name, value, index, path);
-  } else if (command.find("MGET ") == 0) {
+  } else if (command.substr(0, 5) == "MGET ") {
     string cons = command.substr(5);
     stringstream stream(cons);
     stream >> name >> index;
     MGET(name, index, path);
-  } else if (command.find("MSIZE ") == 0) {
+  } else if (command.substr(0, 6) == "MSIZE ") {
     string cons = command.substr(6);
     stringstream stream(cons);
     stream >> name;
     MSIZE(name, path);
-  } else if (command.find("MPRINT ") == 0) {
+  } else if (command.substr(0, 7) == "MPRINT ") {
     string cons = command.substr(7);
     stringstream stream(cons);
     stream >> name;
@@ -326,37 +327,37 @@ void LPRINT( string& name,  string& filename) {
 void lMenu( string& command,  string& path) {
   string name, value;
 
-  if (command.find("LPUSHB ") == 0) {
+  if (command.substr(0, 7) == "LPUSHB ") {
     string cons = command.substr(7);
     stringstream stream(cons);
     stream >> name >> value;
     LPUSH(name, value, path, "back");
-  } else if (command.find("LPUSHF ") == 0) {
+  } else if (command.substr(0, 7) == "LPUSHF ") {
     string cons = command.substr(7);
     stringstream stream(cons);
     stream >> name >> value;
     LPUSH(name, value, path, "front");
-  } else if (command.find("LPOPB ")) {
+  } else if (command.substr(0, 6) == "LPOPB ") {
     string cons = command.substr(6);
     stringstream stream(cons);
     stream >> name;
     LPOP(name, path, "back");
-  } else if (command.find("LPOPF ")) {
+  } else if (command.substr(0, 6) == "LPOPF ") {
     string cons = command.substr(6);
     stringstream stream(cons);
     stream >> name;
     LPOP(name, path, "front");
-  } else if (command.find("LREMOVE ")) {
+  } else if (command.substr(0, 8) == "LREMOVE ") {
     string cons = command.substr(8);
     stringstream stream(cons);
     stream >> name >> value;
     LREMOVE(name, value, path);
-  } else if (command.find("LGET ")) {
+  } else if (command.substr(0, 5) == "LGET ") {
     string cons = command.substr(5);
     stringstream stream(cons);
     stream >> name >> value;
     LGET(name, value, path);
-  } else if (command.find("LPRINT ")) {
+  } else if (command.substr(0, 7) == "LPRINT ") {
     string cons = command.substr(7);
     stringstream stream(cons);
     stream >> name;
@@ -371,7 +372,6 @@ void qReadFile( string& path,  string& nameStruct, Queue& data) {
     ifstream fin(path);
     if (!fin.is_open()) {
         throw out_of_range("Не удалось открыть файл для чтения");
-        return; // Завершаем выполнение функции
     }
 
     while (getline(fin, str)) {
@@ -389,24 +389,30 @@ void qReadFile( string& path,  string& nameStruct, Queue& data) {
 
 void QPUSH( string& name,  string& value,  string& path) {
   string textfull = Ftext(path, name);
-  Queue data;
+  Queue data(30);
   qReadFile(path, name, data);
     
-  data.push(value); // Добавляем новое значение в очередь
-  string str = name + ' '; // Создаем строку для записи
-  Queue temp = data; // Копируем текущую очередь для записи
-  while (!temp.isempty()) {
-    str += temp.peek() + ' ';
-    temp.pop();
+  string str;
+  if (data.Size() != 0) {
+    data.push(value);
+    str = name + ' ';
+    while(data.Size() != 0) {
+      str += data.peek() + ' ';
+      data.pop();
+      }
+      textfull += str;
+      write(path, textfull);
+    } else {
+      str = name + ' ' + value;
+      textfull += str;
+      write(path, textfull);
   }
-  textfull += str;
-  write(path, textfull); // Записываем строку в файл
 }
 
 
 void QPOP( string& name,  string& path) {
   string textfull = Ftext(path, name);
-  Queue data;
+  Queue data(30);
   qReadFile(path, name, data);
 
     if (data.isempty()) {
@@ -427,7 +433,7 @@ void QPOP( string& name,  string& path) {
 }
 
 void QPRINT( string& name,  string& path) {
-    Queue data;
+    Queue data(30);
     qReadFile(path, name, data);
     
     if (data.isempty()) {
@@ -444,17 +450,17 @@ void QPRINT( string& name,  string& path) {
 void qMenu( string& command,  string& path) {
     string name, value;
 
-    if (command.find("QPUSH ") == 0) {
+    if (command.substr(0, 6) == "QPUSH ") {
       string cons = command.substr(6);
       stringstream stream(cons);
       stream >> name >> value;
       QPUSH(name, value, path);
-    } else if (command.find("QPOP ") == 0) {
+    } else if (command.substr(0, 5) == "QPOP ") {
         string cons = command.substr(5);
       stringstream stream(cons);
       stream >> name;
       QPOP(name, path);
-    } else if (command.find("QPRINT ") == 0) {
+    } else if (command.substr(0, 7) == "QPRINT ") {
       string cons = command.substr(7);
       stringstream stream(cons);
       stream >> name;
@@ -480,9 +486,9 @@ void sReadFile( string& path,  string& nameStruct, Stack& data) {
     while (getline(ss, tokens, ' ')) {
       doubly.push(tokens);
       }
-    while (getline(ss, tokens, ' ')) {
-      data.push(data.peek());
-      doubly.pop(); // Добавляем элементы в список 
+    while (doubly.size() != 0) {
+      data.push(doubly.peek());
+      doubly.pop();
       }
     }
   }
@@ -491,22 +497,29 @@ void sReadFile( string& path,  string& nameStruct, Stack& data) {
 
 void SPUSH(string& name, string& value, string& path) {
   string textfull = Ftext(path, name);
-  Stack data; // Создаем стек
+  Stack data(30); // Создаем стек
   sReadFile(path, name, data); // Передаем стек в функцию
 
-  data.push(value);
-  string str = name + ' ';
-  while (!data.isEmpty()) {
-    str += data.peek() + ' ';
-    data.pop();
-  }
-  textfull += str;
-  write(path, textfull);
+  string str;
+    if (data.size() != 0) {
+        data.push(value);
+        str = name + ' ';
+        while(data.size() != 0) {
+            str += data.peek() + ' ';
+            data.pop();
+        }
+        textfull += str;
+        write(path, textfull);
+    } else {
+        str = name + ' ' + value;
+        textfull += str;
+        write(path, textfull);
+    }
 }
 
 void SPOP(string& name, string& path) {
   string textfull = Ftext(path, name);
-  Stack data;
+  Stack data(30);
   sReadFile(path, name, data); // Исправлено имя функции
 
   string str;
@@ -526,7 +539,7 @@ void SPOP(string& name, string& path) {
 }
 
 void SPRINT(string& name, string& path) {
-  Stack data;
+  Stack data(30);
   sReadFile(path, name, data); // Исправлено имя функции
 
   if (!data.isEmpty()) {
@@ -543,7 +556,7 @@ void SPRINT(string& name, string& path) {
 void sMenu(string& command, string& path) { // Функция обработки команд стека
   string name, value;
 
-  if (command.find("SPUSH ") == 0) {
+  if (command.substr(0, 6) == "SPUSH ") {
     string cons = command.substr(6);
     stringstream stream(cons);
     stream >> name >> value;
@@ -552,7 +565,7 @@ void sMenu(string& command, string& path) { // Функция обработки
     stringstream stream(command.substr(5));
     stream >> name;
     SPOP(name, path);
-    } else if (command.find("SPRINT ") == 0) {
+    } else if (command.substr(0, 7) == "SPRINT ") {
       string cons = command.substr(7);
       stringstream stream(cons);
       stream >> name;
@@ -646,17 +659,17 @@ void HGET(string& name, string& key, string& path) {
 void hMenu(string& command, string& path) { // ф-ия обработки команд Хеш-таблицы
   string name, key, value;
 
-  if (command.find("HPUSH ") == 0) {
+  if (command.substr(0, 6) == "HPUSH ") {
     string cons = command.substr(6);
     stringstream stream(cons);
     stream >> name >> key >> value;
     HPUSH(name, key, value, path);
-    } else if (command.find("HPOP ") == 0) {
+    } else if (command.substr(0, 5) == "HPOP ") {
     string cons = command.substr(5);
     stringstream stream(cons);
     stream >> name >> key;
     HPOP(name, key, path);
-    } else if (command.find("HGET ") == 0) {
+    } else if (command.substr(0, 5) == "HGET ") {
     string cons = command.substr(5);
     stringstream stream(cons);
     stream >> name >> key;
