@@ -30,6 +30,7 @@ void Hash_table::insert(const string &key, const string &value) {
 
     if(table[hashValue] == nullptr) {
         table[hashValue] = newPair; // Если ячейка пуста, вставляем новый элемент
+        sizetable++;
     } else {
         HNode* current = table[hashValue];
         while(current) { 
@@ -52,6 +53,7 @@ bool Hash_table::get(const string& key, string& value) {
     while(current) {
         if(current->key == key) {
             value = current->value; //Возвращаем значение
+            cout << value << endl;
             return true; //Ключ найден
         }
         current = current->next;
