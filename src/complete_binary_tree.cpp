@@ -68,9 +68,9 @@ string CompleteBinaryTree::toString(NodeT* node) const {
 
 void CompleteBinaryTree::printTree(NodeT* node) {
     if (node == nullptr) return;
-    printTree(node->left);
-    std::cout << node->data << " ";
     printTree(node->right);
+    cout << setw(4) << " " << node->data << endl;
+    printTree(node->left);
 }
 
 void CompleteBinaryTree::clear(NodeT* nodet) {
