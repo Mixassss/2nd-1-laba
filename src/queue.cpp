@@ -4,7 +4,7 @@ Queue::Queue(int cap) : capacity(cap), front(0), rear(-1), size(0) {
     data = new string[capacity];
 }
 
-Queue::Queue() : capacity(10), front(0), rear(-1), size(0) {
+Queue::Queue() : capacity(30), front(0), rear(-1), size(0) {
     data = new string[capacity]; //Размер списка
 }
 
