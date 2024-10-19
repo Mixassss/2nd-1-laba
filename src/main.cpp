@@ -369,11 +369,8 @@ void lMenu( string& command,  string& path) {
 
 void qReadFile( string& path,  string& nameStruct, Queue& data) {
     string str;
-    ifstream fin(path);
-    if (!fin.is_open()) {
-        throw out_of_range("Не удалось открыть файл для чтения");
-    }
-
+    ifstream fin;
+    fin.open(path);
     while (getline(fin, str)) {
         stringstream ss(str);
         string tokens;
@@ -415,21 +412,20 @@ void QPOP( string& name,  string& path) {
   Queue data(30);
   qReadFile(path, name, data);
 
-    if (data.isempty()) {
-        throw out_of_range("Ошибка: нет такой очереди или она пуста");
+    string str;
+    if (data.Size() != 0) {
+        data.pop();
+        str = name + ' ';
+        while(data.Size() != 0) {
+            str += data.peek() + ' ';
+            data.pop();
+        }
+        textfull += str;
+        write(path, textfull);
+    } else {
+        cout << "Ошибка, нет такой очереди или она пуста!" << endl;
+        exit(1);
     }
-
-    data.pop(); // Удаляем элемент из очереди
-
-    // Создаем строку для записи
-    string str = name + ' ';
-    Queue temp = data; // Копируем текущую очередь для записи
-    while (!temp.isempty()) {
-        str += temp.peek() + ' ';
-        temp.pop();
-    }
-    textfull += str;
-    write(path, textfull); // Записываем строку в файл
 }
 
 void QPRINT( string& name,  string& path) {
