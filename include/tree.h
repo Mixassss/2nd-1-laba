@@ -18,14 +18,16 @@ struct CompleteBinaryTree {
     CompleteBinaryTree();
     ~CompleteBinaryTree();
 
+    void print();
+    string toString();
     void insert(int value); //Функция добавления элемента
-    bool isEmpty() const;
-    void _insert(int value, NodeT* nodeb);
+    NodeT* _insert(NodeT* nodeb, int value);
     bool search(NodeT* nodet, int value); //функция поиска
     bool isComplete(NodeT* nodet, int index, int totalNodes); // проверка на complete
     bool isComplete();
-    string toString(NodeT* node) const;
-    void printTree(NodeT* node);
+    int countNodes(NodeT* nodet);
+    string _toString(NodeT* nodet);
+    void printTree(NodeT* node, int depth);
     void clear(NodeT* nodet); // освобождение памяти
 };
 
