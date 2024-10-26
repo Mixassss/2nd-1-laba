@@ -86,21 +86,21 @@ void MPUSHIND(string& name, string& value, size_t index, string& path) {
   Array arr = aReadFile(path, name);
 
   string str;
-    if (arr.getSize() != 0 && index < arr.getSize()) {
-        arr.addAtIndex(index, value);
-        str = name + ' ';
-        for (int i = 0; i < arr.getSize(); ++i) {
-            str += arr.getIndex(i) + ' ';
-        }
-        ftext += str;
-        write(path, ftext);
+  if (arr.getSize() != 0 && index < arr.getSize()) {
+    arr.addAtIndex(index, value);
+    str = name + ' ';
+    for (int i = 0; i < arr.getSize(); ++i) {
+      str += arr.getIndex(i) + ' ';
+    }
+    ftext += str;
+    write(path, ftext);
     } else if (arr.getSize() == 0 && index == 0){ // создание массива, если его нет
-        str = name + ' ' + value;
-        ftext += str;
-        write(path, ftext);
-  } else {
-        cout << "Ошибка, индекс выходит за размеры массива!" << endl;
-        exit(1);
+      str = name + ' ' + value;
+      ftext += str;
+      write(path, ftext);
+    } else {
+      cout << "Ошибка, индекс выходит за размеры массива!" << endl;
+      exit(1);
     }
 }
 
@@ -372,16 +372,16 @@ void qReadFile( string& path,  string& nameStruct, Queue& data) {
     ifstream fin;
     fin.open(path);
     while (getline(fin, str)) {
-        stringstream ss(str);
-        string tokens;
-        getline(ss, tokens, ' ');
-        if (tokens == nameStruct) { // Проверяем на совпадение с нужной структурой
-            while (getline(ss, tokens, ' ')) {
-                data.push(tokens); // Добавляем элементы в очередь
-            }
+      stringstream ss(str);
+      string tokens;
+      getline(ss, tokens, ' ');
+      if (tokens == nameStruct) { // Проверяем на совпадение с нужной структурой
+        while (getline(ss, tokens, ' ')) {
+          data.push(tokens); // Добавляем элементы в очередь
         }
+      }
     }
-    fin.close();
+  fin.close();
 }
 
 void QPUSH( string& name,  string& value,  string& path) {
@@ -399,10 +399,10 @@ void QPUSH( string& name,  string& value,  string& path) {
       }
       textfull += str;
       write(path, textfull);
-    } else {
-      str = name + ' ' + value;
-      textfull += str;
-      write(path, textfull);
+  } else {
+    str = name + ' ' + value;
+    textfull += str;
+    write(path, textfull);
   }
 }
 
@@ -412,58 +412,58 @@ void QPOP( string& name,  string& path) {
   Queue data(30);
   qReadFile(path, name, data);
 
-    string str;
-    if (data.Size() != 0) {
-        data.pop();
-        str = name + ' ';
-        while(data.Size() != 0) {
-            str += data.peek() + ' ';
-            data.pop();
-        }
-        textfull += str;
-        write(path, textfull);
-    } else {
-        cout << "Ошибка, нет такой очереди или она пуста!" << endl;
-        exit(1);
+  string str;
+  if (data.Size() != 0) {
+    data.pop();
+    str = name + ' ';
+    while(data.Size() != 0) {
+      str += data.peek() + ' ';
+      data.pop();
     }
+    textfull += str;
+    write(path, textfull);
+  } else {
+    cout << "Ошибка, нет такой очереди или она пуста!" << endl;
+    exit(1);
+  } 
 }
 
 void QPRINT( string& name,  string& path) {
-    Queue data(30);
-    qReadFile(path, name, data);
+  Queue data(30);
+  qReadFile(path, name, data);
     
-    if (data.isempty()) {
-        throw out_of_range("Нет такой очереди или она пуста");
-    }
+  if (data.isempty()) {
+    throw out_of_range("Нет такой очереди или она пуста");
+  }
 
-    while (!data.isempty()) {
-        cout << data.peek() << " ";
-        data.pop();
-    }
-    cout << endl;
+  while (!data.isempty()) {
+    cout << data.peek() << " ";
+    data.pop();
+  }
+  cout << endl;
 }
 
 void qMenu( string& command,  string& path) {
-    string name, value;
+  string name, value;
 
-    if (command.substr(0, 6) == "QPUSH ") {
-      string cons = command.substr(6);
-      stringstream stream(cons);
-      stream >> name >> value;
-      QPUSH(name, value, path);
-    } else if (command.substr(0, 5) == "QPOP ") {
-        string cons = command.substr(5);
-      stringstream stream(cons);
-      stream >> name;
-      QPOP(name, path);
-    } else if (command.substr(0, 7) == "QPRINT ") {
-      string cons = command.substr(7);
-      stringstream stream(cons);
-      stream >> name;
-      QPRINT(name, path);
-    } else {
-      throw out_of_range("Ошибка, нет такой команды");
-    }
+  if (command.substr(0, 6) == "QPUSH ") {
+    string cons = command.substr(6);
+    stringstream stream(cons);
+    stream >> name >> value;
+    QPUSH(name, value, path);
+  } else if (command.substr(0, 5) == "QPOP ") {
+    string cons = command.substr(5);
+    stringstream stream(cons);
+    stream >> name;
+    QPOP(name, path);
+  } else if (command.substr(0, 7) == "QPRINT ") {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name;
+    QPRINT(name, path);
+  } else {
+    throw out_of_range("Ошибка, нет такой команды");
+  }
 }
 
 void sReadFile( string& path,  string& nameStruct, Stack& data) {
@@ -479,12 +479,12 @@ void sReadFile( string& path,  string& nameStruct, Stack& data) {
     string tokens;
     getline(ss, tokens, ' ');
     if (tokens == nameStruct) { // Проверяем на совпадение с нужной структурой
-    while (getline(ss, tokens, ' ')) {
-      doubly.push(tokens);
+      while (getline(ss, tokens, ' ')) {
+        doubly.push(tokens);
       }
-    while (doubly.size() != 0) {
-      data.push(doubly.peek());
-      doubly.pop();
+      while (doubly.size() != 0) {
+        data.push(doubly.peek());
+        doubly.pop();
       }
     }
   }
@@ -497,20 +497,20 @@ void SPUSH(string& name, string& value, string& path) {
   sReadFile(path, name, data); // Передаем стек в функцию
 
   string str;
-    if (data.size() != 0) {
-        data.push(value);
-        str = name + ' ';
-        while(data.size() != 0) {
-            str += data.peek() + ' ';
-            data.pop();
-        }
-        textfull += str;
-        write(path, textfull);
-    } else {
-        str = name + ' ' + value;
-        textfull += str;
-        write(path, textfull);
+  if (data.size() != 0) {
+    data.push(value);
+    str = name + ' ';
+    while(data.size() != 0) {
+      str += data.peek() + ' ';
+      data.pop();
     }
+    textfull += str;
+    write(path, textfull);
+  } else {
+    str = name + ' ' + value;
+    textfull += str;
+    write(path, textfull);
+  }
 }
 
 void SPOP(string& name, string& path) {
@@ -525,13 +525,13 @@ void SPOP(string& name, string& path) {
     while(data.size() != 0) {
       str += data.peek() + ' ';
       data.pop();
-      }
-      textfull += str;
-        write(path, textfull);
-    } else {
-        cout << "Ошибка, нет такого стека или он пуст!" << endl;
-        exit(1);
     }
+    textfull += str;
+    write(path, textfull);
+  } else {
+    cout << "Ошибка, нет такого стека или он пуст!" << endl;
+    exit(1);
+  }
 }
 
 void SPRINT(string& name, string& path) {
@@ -542,11 +542,11 @@ void SPRINT(string& name, string& path) {
     while (!data.isEmpty()) {
       cout << data.peek() << " ";
       data.pop();
-      }
+    }
     cout << endl;
-    } else {
-      throw out_of_range("Нет такого стека или он пуст!");
-    } 
+  } else {
+    throw out_of_range("Нет такого стека или он пуст!");
+  } 
 }
 
 void sMenu(string& command, string& path) { // Функция обработки команд стека
@@ -557,71 +557,73 @@ void sMenu(string& command, string& path) { // Функция обработки
     stringstream stream(cons);
     stream >> name >> value;
     SPUSH(name, value, path);
-    } else if (command.substr(0, 5) == "SPOP ") {
+  } else if (command.substr(0, 5) == "SPOP ") {
     stringstream stream(command.substr(5));
     stream >> name;
     SPOP(name, path);
-    } else if (command.substr(0, 7) == "SPRINT ") {
-      string cons = command.substr(7);
-      stringstream stream(cons);
-      stream >> name;
-      SPRINT(name, path);
-    } else {
-      throw out_of_range("Ошибка, нет такой команды!");
-    }
+  } else if (command.substr(0, 7) == "SPRINT ") {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name;
+    SPRINT(name, path);
+  } else {
+    throw out_of_range("Ошибка, нет такой команды!");
+  }
 }
 
 Hash_table hReadFile(string& path, string& name) { // ф-ия чтения Хеш-таблицы из файла
-    Hash_table nums;
-    string str;
-    ifstream fin;
-    fin.open(path);
-    while (getline(fin, str)) {
-        stringstream ss(str);
-        string token;
-        getline(ss, token, ' ');
-        if (token == name) {
-            while (getline(ss, token, ' ')) {
-                int position = token.find_first_of(':');
-                token.replace(position, 1, " ");
-                stringstream iss(token);
-                string key, value;
-                iss >> key >> value;
-                nums.insert(key, value);
-            }
-        }
+  Hash_table nums;
+  string str;
+  ifstream fin;
+  fin.open(path);
+  while (getline(fin, str)) {
+    stringstream ss(str);
+    string token;
+    getline(ss, token, ' ');
+    if (token == name) {
+      while (getline(ss, token, ' ')) {
+        int position = token.find_first_of(':');
+        token.replace(position, 1, " ");
+        stringstream iss(token);
+        string key, value;
+        iss >> key >> value;
+        nums.insert(key, value);
+      }
     }
-    fin.close();
-    return nums;
+  }
+  fin.close();
+  return nums;
 }
 
 string printHashTable( Hash_table& ht, string& name) { // Функция для перебора всех элементов хеш-таблицы
-    string str = name + ' ';
-    for (int i = 0; i < SIZE; ++i) {
-        HNode* current = ht.table[i];
-        while (current) {
-            str += current->key + ':' + current->value + ' ';
-            current = current->next;
-        }
+  string str = name + ' ';
+  for (int i = 0; i < SIZE; ++i) {
+    HNode* current = ht.table[i];
+    while (current) {
+      str += current->key + ':' + current->value + ' ';
+      current = current->next;
     }
-    return str;
+  }
+  return str;
 }
+
 void HPUSH(string& name, string& key, string& value, string& path) {
-    string textfull = Ftext(path, name);
-    Hash_table nums = hReadFile(path, name);
+  string textfull = Ftext(path, name);
+  Hash_table nums = hReadFile(path, name);
     
-    string str;
-    if (nums.sizetable != 0) {
-        nums.insert(key, value);
-        str = printHashTable(nums, name);
-        textfull += str;
-        write(path, textfull);
-    } else {
-        str = name + ' ' + key + ':' + value;
-        textfull += str;
-        write(path, textfull);
-    }
+  string str;
+  if (nums.sizetable != 0) {
+    nums.insert(key, value);
+    str = printHashTable(nums, name);
+    textfull += str;
+    write(path, textfull);
+  } else {
+    str = name + ' ' + key + ':' + value;
+    textfull += str;
+    write(path, textfull);
+  }
 }
+
 void HPOP(string& name, string& key, string& path) {
   string textfull = Ftext(path, name);
   Hash_table nums = hReadFile(path, name);
@@ -632,13 +634,14 @@ void HPOP(string& name, string& key, string& path) {
       str = printHashTable(nums, name);
       textfull += str;
       write(path, textfull);
-      } else {
-        throw out_of_range("Ошибка, нет такого ключа");
-      }
     } else {
-      throw out_of_range("Ошибка, нет такой таблицы или она пуста");
+      throw out_of_range("Ошибка, нет такого ключа");
     }
+  } else {
+    throw out_of_range("Ошибка, нет такой таблицы или она пуста");
+  }
 }
+
 void HGET(string& name, string& key, string& path) {
   Hash_table data = hReadFile(path, name);
 
@@ -652,6 +655,7 @@ void HGET(string& name, string& key, string& path) {
       throw out_of_range("Ошибка: нет такой таблицы или она пуста");
     }
 }
+
 void hMenu(string& command, string& path) { // ф-ия обработки команд Хеш-таблицы
   string name, key, value;
 
@@ -660,19 +664,19 @@ void hMenu(string& command, string& path) { // ф-ия обработки ком
     stringstream stream(cons);
     stream >> name >> key >> value;
     HPUSH(name, key, value, path);
-    } else if (command.substr(0, 5) == "HPOP ") {
+  } else if (command.substr(0, 5) == "HPOP ") {
     string cons = command.substr(5);
     stringstream stream(cons);
     stream >> name >> key;
     HPOP(name, key, path);
-    } else if (command.substr(0, 5) == "HGET ") {
+  } else if (command.substr(0, 5) == "HGET ") {
     string cons = command.substr(5);
     stringstream stream(cons);
     stream >> name >> key;
     HGET(name, key, path);
-    } else {
+  } else {
     throw out_of_range("Ошибка, нет такой команды"); 
-    }
+  }
 }
 
 CompleteBinaryTree tReadFile(string& path, string& name) {
@@ -697,136 +701,135 @@ CompleteBinaryTree tReadFile(string& path, string& name) {
   return data;
 }
 
-void TPush(string& name, int value, string& path) {
+void TPush(string& name, int& value, string& path) {
   string textfull = Ftext(path, name);
-    CompleteBinaryTree data = tReadFile(path, name);
-    string str;
+  CompleteBinaryTree data = tReadFile(path, name);
+  string str;
   
   if (data.size != 0) {
     data.insert(value);
-    str = name + ' ' + data.toString(data.root); 
+    str = name + ' ' + data.toString(); 
     textfull += str;
     write(path, textfull); 
-    } else {
-        str = name + ' ' + to_string(value);
-        textfull += str;
-        write(path, textfull);
+  } else {
+    str = name + ' ' + to_string(value);
+    textfull += str;
+    write(path, textfull);
   }
 }
 
 void TSearch(string& name, int value, string& path) {
-    CompleteBinaryTree nums = tReadFile(path, name);
-    if (!nums.isEmpty()) {
-        cout << (nums.search(nums.root, value) ? "True" : "False") << endl;
-    } else {
-        throw out_of_range("Ошибка, нет такого дерева или оно пусто");
-    }
+  CompleteBinaryTree nums = tReadFile(path, name);
+  if (nums.size != 0) {
+    cout << (nums.search(nums.root, value) ? "True" : "False") << endl;
+  } else {
+    throw out_of_range("Ошибка, нет такого дерева или оно пусто");
+  }
 }
 
 void TCheck(string& name, string& filename) {
-    CompleteBinaryTree nums = tReadFile(filename, name);
-    if (!nums.isEmpty()) {
-        cout << (nums.isComplete(nums.root, 0, nums.size) ? "True" : "False") << endl;
-    } else {
-        throw out_of_range("Ошибка, нет такого дерева или оно пусто");
-    }
+  CompleteBinaryTree nums = tReadFile(filename, name);
+  if (nums.size != 0) {
+  if (nums.isComplete()) cout << "True" << endl;
+    else if (!nums.isComplete()) cout << "False" << endl;
+  } else {
+    throw out_of_range("Ошибка, нет такого дерева или оно пусто");
+  }
 }
 
-void TPrint(string& name, string& filename) {
-  CompleteBinaryTree nums = tReadFile(filename, name);
-  if (!nums.isEmpty()) {
-    nums.printTree(nums.root);
-    cout << endl; // Добавляем перевод строки для удобства
-    } else {
-      throw out_of_range("Ошибка, нет такого дерева или оно пусто");
-    }
+void TPrint(string& name, string& path) {
+  CompleteBinaryTree nums = tReadFile(path, name);
+  if (nums.size != 0) {
+    nums.print();
+  } else {
+    throw out_of_range("Ошибка, нет такого дерева или оно пусто");
+  }
 }
 
 void tMenu(string& command, string& path) {
   string name;
   int value;
 
-  if (command.find("TPUSH ") == 0) {
+  if (command.substr(0, 6) == "TPUSH ") {
     string cons = command.substr(6);
     stringstream stream(cons);
     stream >> name >> value;
     TPush(name, value, path);
-    } else if (command.find("TSEARCH ") == 0) {
-      string cons = command.substr(8);
-      stringstream stream(cons);
-      stream >> name >> value;
-      TSearch(name, value, path);
-    } else if (command.find("TCHECK ") == 0) {
-      string cons = command.substr(7);
-      stringstream stream(cons);
-      stream >> name;
-      TCheck(name, path);
-    } else if (command.find("TPRINT ") == 0) {
-      string cons = command.substr(7);
-      stringstream stream(cons);
-      stream >> name;
-      TPrint(name, path);
-    } else {
-        throw out_of_range("Ошибка: нет такой команды"); 
-    }
+  } else if (command.substr(0, 8) == "TSEARCH ") {
+    string cons = command.substr(8);
+    stringstream stream(cons);
+    stream >> name >> value;
+    TSearch(name, value, path);
+  } else if (command.substr(0, 7) == "TCHECK ") {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name;
+    TCheck(name, path);
+  } else if (command.substr(0, 7) == "TPRINT ") {
+    string cons = command.substr(7);
+    stringstream stream(cons);
+    stream >> name;
+    TPrint(name, path);
+  } else {
+    throw out_of_range("Ошибка: нет такой команды"); 
+  }
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 5) {
+  if (argc != 5) {
+    printUsage(argv[0]);
+    return 1;
+  }
+
+  string filename; // Разбор аргументов командной строки
+  string query;
+
+  for (int i = 1; i < argc; i++) {
+    if (string(argv[i]) == "--file") {
+      if (++i < argc) {
+        filename = argv[i];
+      } else {
         printUsage(argv[0]);
         return 1;
-    }
-
-    string filename; // Разбор аргументов командной строки
-    string query;
-
-    for (int i = 1; i < argc; i++) {
-        if (string(argv[i]) == "--file") {
-            if (++i < argc) {
-                filename = argv[i];
-            } else {
-                printUsage(argv[0]);
-                return 1;
-            }
-        } else if (string(argv[i]) == "--query") {
-            if (++i < argc) {
-                query = argv[i];
-            } else {
-                printUsage(argv[0]);
-                return 1;
-            }
+      }
+      } else if (string(argv[i]) == "--query") {
+        if (++i < argc) {
+          query = argv[i];
+        } else {
+          printUsage(argv[0]);
+          return 1;
         }
+      }
     }
-
-    // Обработка команды
-    if (query.empty()) {
-        cout << "Ошибка: Должна быть указана команда." << endl;
-        return 1;
-    }
-
-    switch (query[0]) {
-        case 'M':
-            aMenu(query, filename);
-            break;
-        case 'L':
-            lMenu(query, filename);
-            break;
-        case 'Q':
-            qMenu(query, filename);
-            break;
-        case 'S':
-            sMenu(query, filename);
-            break;
-        case 'H':
-            hMenu(query, filename);
-            break;
-        case 'T':
-            tMenu(query, filename);
-            break;
-        default:
-            cout << "Ошибка: Неизвестная структура данных." << endl;
-            return 1;
-    }
-
-    return 0;
+    
+  if (query.empty()) { // Обработка команды
+    cout << "Ошибка: Должна быть указана команда." << endl;
+    return 1;
+  }
+    
+  switch (query[0]) {
+    case 'M':
+      aMenu(query, filename);
+      break;
+    case 'L':
+      lMenu(query, filename);
+      break;
+    case 'Q':
+      qMenu(query, filename);
+      break;
+    case 'S':
+      sMenu(query, filename);
+      break;
+    case 'H':
+      hMenu(query, filename);
+      break;
+    case 'T':
+      tMenu(query, filename);
+      break;
+    default:
+      cout << "Ошибка: Неизвестная структура данных." << endl;
+      return 1;
+  }
+  
+  return 0;
 }
