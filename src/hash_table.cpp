@@ -1,7 +1,6 @@
 #include "../include/ht.h"
 
 Hash_table::Hash_table() {
-    table = new HNode* [SIZE]; 
     for(size_t i = 0; i < SIZE; ++i) {
         table[i] = nullptr; //Присваиванпие каждой ноды, нулевого значения
     }
@@ -16,7 +15,6 @@ Hash_table::~Hash_table() {
             delete toDelete;
         }
     }
-    delete[] table;
 }
 
 int Hash_table::hashFunction(const string& key) {
@@ -24,7 +22,7 @@ int Hash_table::hashFunction(const string& key) {
     return hashFn(key) % SIZE;
 }
 
-void Hash_table::insert(const string &key, const string &value) {
+void Hash_table::insert(string &key, string &value) {
     int hashValue = hashFunction(key); // Хэш значение соответствующее этому ключу
     HNode* newPair = new HNode(key, value); // Используем конструктор HNode
 
@@ -33,7 +31,7 @@ void Hash_table::insert(const string &key, const string &value) {
         sizetable++;
     } else {
         HNode* current = table[hashValue];
-        while(current) { 
+        while(current->next) { 
             if(current->key == key) {
                 current->value = value; // Обновляем значение, если ключ существует
                 delete newPair; // Удаляем временный узел
