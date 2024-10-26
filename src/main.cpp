@@ -40,12 +40,8 @@ void write(string& path, string& text) { // Функция записи данн
 Array aReadFile(string& path, string& nameStruct) {
   Array arr;
   string str;
-
-  ifstream fin(path);
-  if (!fin.is_open()) {
-    cout << "Не удалось открыть файл для чтения" << endl;
-    return arr; // Возвращаем пустой массив, если не удалось открыть файл
-  }
+  ifstream fin;
+  fin.open(path);
 
   while (getline(fin, str)) {
     stringstream ss(str);
@@ -94,14 +90,14 @@ void MPUSHIND(string& name, string& value, size_t index, string& path) {
     }
     ftext += str;
     write(path, ftext);
-    } else if (arr.getSize() == 0 && index == 0){ // создание массива, если его нет
-      str = name + ' ' + value;
-      ftext += str;
-      write(path, ftext);
-    } else {
-      cout << "Ошибка, индекс выходит за размеры массива!" << endl;
-      exit(1);
-    }
+  } else if (arr.getSize() == 0 && index == 0){ // создание массива, если его нет
+    str = name + ' ' + value;
+    ftext += str;
+    write(path, ftext);
+  } else {
+    cout << "Ошибка, индекс выходит за размеры массива!" << endl;
+    exit(1);
+  }
 }
 
 void MREMOVE(string& name, size_t index, string& path) {
@@ -150,7 +146,7 @@ void MGET(string& data, size_t& index, string& path) {
   if (arr.getSize() != 0 && index < arr.getSize()) {
     cout << arr.getIndex(index) << endl; // Используем метод get для получения значения
   } else {
-      throw out_of_range("Ошибка: Нет такого массива или индекс выходит за его размеры ");
+    throw out_of_range("Ошибка: Нет такого массива или индекс выходит за его размеры ");
   }
 }
 
@@ -220,12 +216,8 @@ void aMenu(string& command, string& path) { // Функция обработки
 SinglyLinkedList slReadFile( string& path,  string& nameStruct) {
   SinglyLinkedList data;
   string str;
-
-  ifstream fin(path);
-  if (!fin.is_open()) {
-    cout << "Не удалось открыть файл для чтения" << endl;
-    return data; // Возвращаем пустой массив, если не удалось открыть файл
-  }
+  ifstream fin;
+  fin.open(path);
 
   while (getline(fin, str)) {
     stringstream ss(str);
@@ -469,10 +461,8 @@ void qMenu( string& command,  string& path) {
 void sReadFile( string& path,  string& nameStruct, Stack& data) {
   Stack doubly(30);
   string str;
-  ifstream fin(path);
-  if (!fin.is_open()) {
-    cout << "Не удалось открыть файл для чтения" << endl;
-  }
+  ifstream fin;
+  fin.open(path);
 
   while (getline(fin, str)) {
     stringstream ss(str);
@@ -682,10 +672,8 @@ void hMenu(string& command, string& path) { // ф-ия обработки ком
 CompleteBinaryTree tReadFile(string& path, string& name) {
   CompleteBinaryTree data;
   string str;
-  ifstream fin(path);
-  if (!fin.is_open()) {
-    cout << "Не удалось открыть файл для чтения" << endl;
-  }
+  ifstream fin;
+  fin.open(path);
 
   while (getline(fin, str)) {
     stringstream ss(str);
