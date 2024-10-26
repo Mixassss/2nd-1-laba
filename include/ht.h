@@ -15,14 +15,14 @@ struct HNode {
 };
 
 struct Hash_table {
-    HNode** table;
+    HNode* table[SIZE];
     int sizetable = 0;
 
     Hash_table(); //Инициализация хэш таблицы
     ~Hash_table(); //Деконструктор
 
     int hashFunction(const string& key); // Хеш-функция
-    void insert(const string &key, const string &value); //Функция долбавления элемента
+    void insert(string &key, string &value); //Функция долбавления элемента
     bool get(const string& key, string& value);
     bool remove(const string& key);
 };
