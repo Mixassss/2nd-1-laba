@@ -31,7 +31,7 @@ void Hash_table::insert(string &key, string &value) {
         sizetable++;
     } else {
         HNode* current = table[hashValue];
-        while(current->next) { 
+        while(current) { 
             if(current->key == key) {
                 current->value = value; // Обновляем значение, если ключ существует
                 delete newPair; // Удаляем временный узел
